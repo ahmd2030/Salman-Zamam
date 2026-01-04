@@ -1,10 +1,10 @@
-const CACHE_NAME = 'salman-app-v2.3-logo'; // Bumped for Logo Update
+const CACHE_NAME = 'salman-app-v3.2-install'; // Bumped for Install Prompt
 const ASSETS = [
     './',
     './index.html',
     './theme.css',
     './main.js',
-    './logo.jpg',
+    './logo.png',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
     'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
     'https://unpkg.com/html5-qrcode'

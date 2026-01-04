@@ -109,6 +109,48 @@ window.onload = () => {
     checkKillSwitch();
     // بدء تدوير العبارات Only if not logged in
     if (!savedBranch) startQuoteRotation();
+
+    // --- PWA Install Logic ---
+    let deferredPrompt;
+    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+
+    // 1. Android / Desktop (Chrome/Edge)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!isInStandaloneMode) {
+            setTimeout(() => {
+                document.getElementById('install-modal').classList.remove('hidden');
+            }, 2500);
+        }
+    });
+
+    // 2. iOS Detection (Manual Instructions)
+    if (isIos && !isInStandaloneMode) {
+        // iOS doesn't support beforeinstallprompt, show modal with special text
+        setTimeout(() => {
+            const modal = document.getElementById('install-modal');
+            const btn = document.getElementById('install-btn');
+            const p = modal.querySelector('p');
+
+            p.innerHTML = 'لتثبيت التطبيق على الآيفون:<br>1. اضغط على زر <b>مشاركة</b> <i class="fas fa-share-square"></i> في الأسفل.<br>2. اختر <b>"إضافة إلى الصفحة الرئيسية"</b>.';
+            btn.style.display = 'none'; // Hide button as it won't work
+            modal.classList.remove('hidden');
+        }, 3000);
+    }
+
+    const installBtn = document.getElementById('install-btn');
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                closeModal('install-modal');
+            }
+        });
+    }
 };
 
 // --- Auth & Modals ---
@@ -386,7 +428,7 @@ window.reprintQR = function (id, l, lf) {
         <div class="card text-center scale-up" style="max-width:300px; width:90%; position:relative;">
             <span onclick="document.body.removeChild(document.getElementById('temp-qr-modal'))" style="position:absolute; top:10px; left:10px; cursor:pointer; font-size:20px;">✖</span>
             
-            <img src="logo.jpg" style="width:70px; margin-top:10px; border-radius:50%">
+            <img src="logo.png" style="width:70px; margin-top:10px; border-radius:50%">
             
             <h3 style="margin:10px 0">${id}</h3>
             <div id="temp-qrcode" style="display:flex; justify-content:center; margin-bottom:15px;"></div>
