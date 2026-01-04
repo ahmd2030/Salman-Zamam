@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salman-app-v3.2-install'; // Bumped for Install Prompt
+const CACHE_NAME = 'salman-app-v3.3-fast-prompt'; // Bumped for Fast Install Prompt
 const ASSETS = [
     './',
     './index.html',

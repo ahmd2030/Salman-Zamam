@@ -122,7 +122,7 @@ window.onload = () => {
         if (!isInStandaloneMode) {
             setTimeout(() => {
                 document.getElementById('install-modal').classList.remove('hidden');
-            }, 2500);
+            }, 1000);
         }
     });
 
@@ -137,7 +137,7 @@ window.onload = () => {
             p.innerHTML = 'لتثبيت التطبيق على الآيفون:<br>1. اضغط على زر <b>مشاركة</b> <i class="fas fa-share-square"></i> في الأسفل.<br>2. اختر <b>"إضافة إلى الصفحة الرئيسية"</b>.';
             btn.style.display = 'none'; // Hide button as it won't work
             modal.classList.remove('hidden');
-        }, 3000);
+        }, 1000);
     }
 
     const installBtn = document.getElementById('install-btn');
