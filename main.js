@@ -437,6 +437,9 @@ window.reprintQR = function (id, l, lf) {
                 <p style="margin:5px 0"><strong>مع فلتر:</strong> ${lf} لتر</p>
             </div>
             <button onclick="window.print()" class="btn-print mt-20" style="margin-top:15px">طباعة</button>
+            <button onclick="copyAndOpenNiimbot('${id}')" class="btn-main" style="margin-top:10px; display: flex; align-items: center; justify-content: center; gap: 5px; background: #c0a060; color: black;">
+                <i class="fas fa-print"></i> نسخ وفتح Niimbot
+            </button>
         </div>
     `;
 
@@ -445,6 +448,65 @@ window.reprintQR = function (id, l, lf) {
     setTimeout(() => {
         new QRCode(document.getElementById('temp-qrcode'), { text: id, width: 120, height: 120 });
     }, 100);
+}
+
+window.copyAndOpenNiimbot = function (text) {
+    // 1. Copy
+    window.copyQR(text);
+
+    // 2. Open App (Android Intent)
+    // Try generic launch first, if fails, it stays. 
+    // Package name for Niimbot: com.niimbot.printing
+
+    setTimeout(() => {
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (isAndroid) {
+            window.location.href = "intent://#Intent;package=com.niimbot.printing;end";
+        } else {
+            // iOS or PC: Just allow them to switch manually
+            // alert("يرجى فتح تطبيق Niimbot الآن");
+        }
+    }, 1000);
+}
+
+window.copyQR = function (text) {
+    // 1. Try Modern API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("تم نسخ: " + text);
+        }).catch(err => {
+            // If failed (e.g. permission), try fallback
+            console.warn("Clipboard API failed, trying fallback...", err);
+            fallbackCopyText(text);
+        });
+    } else {
+        // 2. Fallback for HTTP / Old Browsers
+        fallbackCopyText(text);
+    }
+}
+
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Ensure it's not visible but part of DOM
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    document.body.appendChild(textArea);
+
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) alert("تم نسخ: " + text);
+        else alert("فشل النسخ تلقائياً");
+    } catch (err) {
+        console.error('Fallback copy error', err);
+        alert("فشل النسخ. يرجى النسخ يدوياً.");
+    }
+
+    document.body.removeChild(textArea);
 }
 
 async function updateOilChange() {

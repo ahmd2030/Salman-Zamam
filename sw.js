@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salman-app-v3.6-clean-icon'; // Bumped for Clean Icon Edges
+const CACHE_NAME = 'salman-app-v3.9-niimbot-btn'; // Bumped for Niimbot Button
 const ASSETS = [
     './',
     './index.html',
