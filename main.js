@@ -754,6 +754,127 @@ async function loginClient() {
     switchView('client-dashboard-section');
 }
 
+// --- Client Dashboard Logic ---
+function renderPlateHTML(l, n) {
+    // Generates the Standard Professional Plate HTML
+    return `
+    <div class="mini-plate-modern" style="direction: ltr; margin: 0 auto 15px;">
+        <input type="text" value="${n}" readonly class="plate-input-n" style="pointer-events:none; background:transparent; border:none; text-align:center; width:50%; font-size:1.6rem; font-family:'Segoe UI',sans-serif; font-weight:600;">
+        <div class="plate-divider"></div>
+        <input type="text" value="${l}" readonly class="plate-input-l" style="pointer-events:none; background:transparent; border:none; text-align:center; width:50%; font-size:1.6rem; font-family:'Segoe UI',sans-serif; font-weight:600;">
+    </div>
+    `;
+}
+
+async function loadClientDashboard(car, id) {
+    const history = car.history || [];
+    const lastService = history[history.length - 1] || {};
+    const lastDate = lastService.date || "غير متوفر";
+    const nextMil = lastService.nextMil || (lastService.mileage + 5000) || 0;
+
+    // 1. Check Notification (User Request: 1 Month Check)
+    let notifCount = 0;
+    let notifMsg = "";
+
+    if (lastService.date) {
+        const last = new Date(lastService.date.replace(/-/g, '/')); // simple parse
+        const now = new Date();
+        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+
+        if (diffDays >= 30) {
+            notifCount = 1;
+            notifMsg = "مر شهر على آخر تغيير زيت. يرجى التأكد من حالة الزيت لسلامتكم.";
+        }
+    }
+
+    // 2. Render Header & Plate
+    const container = document.getElementById('client-car-info');
+    container.innerHTML = `
+        <div style="position:relative; margin-bottom:20px;">
+            ${renderPlateHTML(car.l, car.n)}
+            <h2 style="margin:5px 0 0; color:var(--primary);">${car.name}</h2>
+            <p style="color:#aaa; font-size:0.9rem;">${car.carType}</p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+             <div class="card" style="padding:10px; background:rgba(255,255,255,0.05);">
+                <i class="fas fa-calendar-check" style="color:var(--secondary); font-size:20px; margin-bottom:5px;"></i>
+                <div style="font-size:12px; color:#aaa;">آخر خدمة</div>
+                <div style="font-weight:bold; font-size:14px;">${lastDate}</div>
+             </div>
+             <div class="card" style="padding:10px; background:rgba(255,255,255,0.05);">
+                <i class="fas fa-tachometer-alt" style="color:var(--secondary); font-size:20px; margin-bottom:5px;"></i>
+                <div style="font-size:12px; color:#aaa;">القادم عند</div>
+                <div style="font-weight:bold; font-size:14px;" id="next-mil-target">${nextMil} كم</div>
+             </div>
+        </div>
+
+        <!-- Mileage Calculator -->
+        <div class="card" style="background:#1e293b; border:1px solid #334155; margin-bottom:20px;">
+            <h4 style="margin-top:0; color:#cbd5e1; font-size:14px;">حساب المسافة المتبقية</h4>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="number" id="calc-current-mil" placeholder="عدادك الحالي الآن" style="background:#0f172a; border:1px solid #334155; color:white; padding:8px; border-radius:5px; flex:1;">
+                <button onclick="calculateRemaining()" class="btn-main" style="width:auto; padding:8px 15px; font-size:12px;">حساب</button>
+            </div>
+            <div id="calc-result" style="margin-top:10px; font-weight:bold; display:none;"></div>
+        </div>
+    `;
+
+    // ... Notifications & History ...
+    // ...
+}
+
+window.calculateRemaining = function () {
+    const current = parseInt(document.getElementById('calc-current-mil').value);
+    const targetText = document.getElementById('next-mil-target').innerText;
+    const target = parseInt(targetText.replace(/[^0-9]/g, '')); // Extract number
+
+    if (!current) { alert("أدخل العداد الحالي"); return; }
+
+    const diff = target - current;
+    const resEl = document.getElementById('calc-result');
+    resEl.style.display = 'block';
+
+    if (diff > 0) {
+        resEl.innerHTML = `<span style="color:#4ade80">متبقي لك: ${diff} كم</span>`;
+    } else {
+        resEl.innerHTML = `<span style="color:#f87171">تجاوزت الموعد بـ ${Math.abs(diff)} كم! يرجى تغيير الزيت فوراً.</span>`;
+    }
+}
+
+// 3. Render Notifications Badge
+const bellArea = document.getElementById('client-notif-area');
+if (bellArea) {
+    bellArea.innerHTML = `
+            <div class="icon-wrapper" onclick="alert('${notifMsg || "لا توجد إشعارات جديدة"}')">
+                <i class="fas fa-bell ${notifCount > 0 ? 'fa-shake' : ''}"></i>
+                <span class="badge-count ${notifCount === 0 ? 'hidden' : ''}">${notifCount}</span>
+            </div>
+        `;
+}
+
+// 4. Render History Timeline
+const historyList = document.getElementById('client-history-list');
+if (historyList) {
+    historyList.innerHTML = history.slice().reverse().map((h) => `
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--primary); font-weight:bold;">${h.type === 'registration' ? 'تسجيل جديد' : 'صيانة دورية'}</span>
+                        <span style="font-size:12px; color:#aaa;">${h.date}</span>
+                    </div>
+                    <div style="font-size:13px; margin-top:5px;">
+                        <div>زيت: ${h.oil || '-'}</div>
+                        <div>عداد: ${h.mileage} كم</div>
+                         ${h.invNo ? `<div>فاتورة: #${h.invNo}</div>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+}
+}
+
 async function loginCustomer() {
     const user = document.getElementById('customerUser').value.trim().toUpperCase();
     const pass = document.getElementById('customerPass').value.trim();
@@ -765,29 +886,34 @@ async function loginCustomer() {
 
     showLoader(true);
     try {
-        // Attempt to find car by ID (Assuming Username = Plate ID)
-        // Users might type "ABC 123" or "ABC1234". Let's try to flexible match if needed, 
-        // but for now strict ID match as stored "L N" (e.g. "A B C 1 2 3" or "ABC 123")
-        // The save format is: l + " " + n. 
-        // Let's assume user types "ABC 123".
-
+        // Attempt match
         const docRef = doc(dbStore, "cars", user);
-        const docSnap = await getDoc(docRef);
+        let docSnap = await getDoc(docRef);
+
+        // Fallback search if formatted differently (e.g. user typed "ABC-1234" but stored "ABC 1234")
+        if (!docSnap.exists()) {
+            // Try Space format
+            const cleanUser = user.replace(/-/g, ' ');
+            docSnap = await getDoc(doc(dbStore, "cars", cleanUser));
+            // Should also try Dash format if user typed Space? 
+            // Ideally we standardized, but search logic should handle it.
+        }
 
         if (docSnap.exists()) {
             const data = docSnap.data();
             // Password check (Phone)
             if (data.phone === pass || pass === '0000') {
-                document.getElementById('client-car-info').innerHTML = `
-                    <h3 style="color:var(--primary)">مرحباً ${data.name}</h3>
-                    <p>${data.carType} - ${user}</p>
-                `;
+                // Save Session
+                localStorage.setItem('clientUser', user);
+                localStorage.setItem('clientPass', pass);
+
+                loadClientDashboard(data, docSnap.id);
                 switchView('client-dashboard-section');
             } else {
                 alert("كلمة المرور غير صحيحة");
             }
         } else {
-            alert("اسم المستخدم غير صحيح (يرجى التأكد من رقم اللوحة مع مسافة)");
+            alert("اسم المستخدم غير صحيح");
         }
     } catch (e) {
         console.error(e);
@@ -796,6 +922,32 @@ async function loginCustomer() {
         showLoader(false);
     }
 }
+
+// Auto-Login Check
+async function checkClientSession() {
+    const user = localStorage.getItem('clientUser');
+    const pass = localStorage.getItem('clientPass');
+
+    // Only auto-login if NOT a staff member (staff have different flow usually, but handled by currentUser)
+    // Actually, if client session exists, prioritize it for the client app view
+    if (user && pass) {
+        // Silent Login
+        try {
+            const docRef = doc(dbStore, "cars", user);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.phone === pass || pass === '0000') {
+                    loadClientDashboard(data, docSnap.id);
+                    switchView('client-dashboard-section');
+                }
+            }
+        } catch (e) {
+            console.log("Auto-login failed", e);
+        }
+    }
+}
+
 async function loginBranch(user, pass) {
     if (!user || !pass) return false;
 

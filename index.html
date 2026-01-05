@@ -125,394 +125,395 @@
 
         <!-- 3. Client Dashboard -->
         <section id="client-dashboard-section" class="view hidden">
-            <header style="position: relative;">
-                <div onclick="logout()"
-                    style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #ff4d4d; font-size: 1.2rem; z-index: 10; padding: 10px;">
-                    <i class="fas fa-sign-out-alt"></i>
+            <header
+                style="position: relative; display:flex; justify-content:space-between; padding:0 15px; align-items:center;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div onclick="logout()" style="cursor: pointer; color: #ff4d4d; font-size: 1.2rem;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h2><i class="fas fa-tachometer-alt"></i> لوحتي</h2>
                 </div>
-                <h2><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h2>
+
+                <!-- Notification Bell Area -->
+                <div id="client-notif-area"></div>
             </header>
-            <div style="padding: 20px;">
-                <div class="card" id="client-car-info" style="text-align: center;">
+            <div style="padding: 20px; padding-bottom:100px;">
+                <div id="client-car-info" style="text-align: center;">
                     <!-- Filled by JS -->
                 </div>
 
-                <div class="oil-gauge-container">
-                    <h3>حالة الزيت</h3>
-                    <div class="gauge-wrapper">
-                        <div class="gauge-body">
-                            <div class="gauge-fill" id="gauge-fill"></div>
-                            <div class="gauge-needle" id="gauge-needle"></div>
-                        </div>
-                        <div class="gauge-labels">
-                            <span class="bad">تغيير</span>
-                            <span class="good">جديد</span>
-                        </div>
-                    </div>
-                    <div class="gauge-text" id="gauge-text">0%</div>
+                <h3 style="margin-top:20px; border-bottom:1px solid #333; padding-bottom:10px;">سجل الصيانة</h3>
+                <div id="client-history-list" style="margin-top:15px;">
+                    <!-- Filled by JS -->
+                </div>
+                <div class="gauge-labels">
+                    <span class="bad">تغيير</span>
+                    <span class="good">جديد</span>
+                </div>
+            </div>
+            <div class="gauge-text" id="gauge-text">0%</div>
+    </div>
+
+    <div id="client-history-list"></div>
+    <button class="btn-secondary" onclick="switchView('landing-section')">خروج</button>
+    </div>
+    </section>
+
+    <!-- 5. New Car Section (Employee) - Full Version -->
+    <section id="new-car-section" class="view hidden">
+        <header>
+            <h2>تسجيل مركبة جديدة</h2>
+        </header>
+        <div style="padding: 20px;">
+            <div class="card">
+                <div class="mini-plate-modern" style="direction: ltr;">
+                    <input type="tel" id="plateN" placeholder="1234" maxlength="4" class="plate-input-n"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="plate-divider"></div>
+                    <input type="text" id="plateL" placeholder="ABC" maxlength="3" class="plate-input-l"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()">
                 </div>
 
-                <div id="client-history-list"></div>
-                <button class="btn-secondary" onclick="switchView('landing-section')">خروج</button>
+                <div class="field"><input type="text" id="clientName" placeholder="اسم العميل"><i
+                        class="fas fa-user"></i></div>
+                <div class="field"><input type="text" id="carType" placeholder="نوع السيارة (مثال: S500)"><i
+                        class="fas fa-car-side"></i></div>
+                <div class="field"><input type="tel" id="clientPhone" placeholder="رقم الجوال (05...)"><i
+                        class="fas fa-phone"></i></div>
+
+                <div style="display:flex; gap:10px">
+                    <div class="field"><input type="text" id="liters" placeholder="لتر (بدون فلتر)"><i
+                            class="fas fa-oil-can"></i></div>
+                    <div class="field"><input type="text" id="litersWithFilter" placeholder="لتر (مع فلتر)"><i
+                            class="fas fa-filter"></i></div>
+                </div>
+
+                <div class="field"><input type="number" id="mileage" placeholder="العداد الحالي"><i
+                        class="fas fa-tachometer-alt"></i></div>
+
+                <button class="btn-main" onclick="saveNewCar()">حفظ وتسجيل</button>
+                <!-- Point 12: Branch Inbox & Notifications -->
+                <div class="card" id="branch-inbox-container"
+                    style="border-right: 4px solid var(--primary); margin-top:20px">
+                    <div style="display:flex; justify-content:space-between; align-items:center"
+                        onclick="toggleBranchInbox()">
+                        <div class="messaging-actions">
+                            <div class="action-icon-box" onclick="toggleBranchInbox()">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-envelope-open-text"></i>
+                                    <span id="msg-badge" class="badge-count hidden">0</span>
+                                </div>
+                                <span>الوارد</span>
+                            </div>
+                            <div class="action-icon-box"
+                                onclick="document.getElementById('complaint-modal').classList.remove('hidden')">
+                                <div class="icon-wrapper">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <span>الدعم الفني</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="branch-msg-list" class="hidden card"
+                        style="margin-top:10px; max-height:200px; overflow-y:auto"></div>
+                </div>
             </div>
-        </section>
 
-        <!-- 5. New Car Section (Employee) - Full Version -->
-        <section id="new-car-section" class="view hidden">
-            <header>
-                <h2>تسجيل مركبة جديدة</h2>
-            </header>
-            <div style="padding: 20px;">
+            <!-- Hidden Result for QR -->
+            <div id="qr-result" class="card hidden" style="text-align:center">
+                <h3>تم التسجيل بنجاح</h3>
+                <div id="qrcode" style="display:flex; justify-content:center; margin:15px"></div>
+                <div id="qr-liters-info" class="qr-info-box"></div>
+                <button class="btn-print" onclick="window.print()">طباعة الباركود</button>
+            </div>
+        </div>
+        <div style="height:80px"></div>
+    </section>
+
+    <!-- 6. Scan Section (Employee) -->
+    <section id="scan-section" class="view hidden">
+        <header>
+            <h2>فحص وصيانة</h2>
+        </header>
+        <div style="padding: 20px;">
+            <button class="btn-scan" onclick="toggleScanner()">
+                <i class="fas fa-camera"></i> فتح الكاميرا
+            </button>
+            <div id="reader"></div>
+
+            <div class="card">
+                <h4 style="margin-top:0">بحث يدوي</h4>
+                <div class="mini-plate-modern" style="direction: ltr;">
+                    <input type="tel" id="searchN" placeholder="1234" maxlength="4" class="plate-input-n"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="plate-divider"></div>
+                    <input type="text" id="searchL" placeholder="ABC" maxlength="3" class="plate-input-l"
+                        oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()">
+                </div>
+                <button class="btn-dark" onclick="searchCar()">بحث</button>
+            </div>
+
+            <!-- Car Details (Hidden by default) -->
+            <div id="car-details" class="hidden">
+                <div class="card" style="text-align:center">
+                    <div id="plate-view-small"></div>
+                    <div id="static-info" style="margin-top:10px"></div>
+                </div>
+
+                <!-- Calculator -->
                 <div class="card">
-                    <div class="mini-plate-modern" style="direction: ltr;">
-                        <input type="tel" id="plateN" placeholder="1234" maxlength="4" class="plate-input-n"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        <div class="plate-divider"></div>
-                        <input type="text" id="plateL" placeholder="ABC" maxlength="3" class="plate-input-l"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()">
+                    <h4 style="margin:0 0 10px 0">حاسبة الممشي</h4>
+                    <div style="display:flex; gap:5px; align-items:center">
+                        <input type="number" id="calcPrev" readonly
+                            style="width:70px; background:#eee; border:none; padding:5px; text-align:center">
+                        <span>إلى</span>
+                        <input type="number" id="calcCurrent" oninput="calculateDiff()"
+                            style="width:70px; border:1px solid #ccc; padding:5px; text-align:center"
+                            placeholder="حالياً">
+                        <span>=</span>
+                        <strong id="calcResult" style="color:var(--primary)">0 كم</strong>
                     </div>
+                </div>
 
-                    <div class="field"><input type="text" id="clientName" placeholder="اسم العميل"><i
-                            class="fas fa-user"></i></div>
-                    <div class="field"><input type="text" id="carType" placeholder="نوع السيارة (مثال: S500)"><i
-                            class="fas fa-car-side"></i></div>
-                    <div class="field"><input type="tel" id="clientPhone" placeholder="رقم الجوال (05...)"><i
-                            class="fas fa-phone"></i></div>
-
-                    <div style="display:flex; gap:10px">
-                        <div class="field"><input type="text" id="liters" placeholder="لتر (بدون فلتر)"><i
-                                class="fas fa-oil-can"></i></div>
-                        <div class="field"><input type="text" id="litersWithFilter" placeholder="لتر (مع فلتر)"><i
-                                class="fas fa-filter"></i></div>
-                    </div>
-
-                    <div class="field"><input type="number" id="mileage" placeholder="العداد الحالي"><i
+                <!-- Update Service Form -->
+                <div class="card">
+                    <div class="card-header">تسجيل خدمة جديدة</div>
+                    <div class="field"><input type="number" id="newMileage" placeholder="العداد الجديد"><i
                             class="fas fa-tachometer-alt"></i></div>
-
-                    <button class="btn-main" onclick="saveNewCar()">حفظ وتسجيل</button>
-                    <!-- Point 12: Branch Inbox & Notifications -->
-                    <div class="card" id="branch-inbox-container"
-                        style="border-right: 4px solid var(--primary); margin-top:20px">
-                        <div style="display:flex; justify-content:space-between; align-items:center"
-                            onclick="toggleBranchInbox()">
-                            <div class="messaging-actions">
-                                <div class="action-icon-box" onclick="toggleBranchInbox()">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-envelope-open-text"></i>
-                                        <span id="msg-badge" class="badge-count hidden">0</span>
-                                    </div>
-                                    <span>الوارد</span>
-                                </div>
-                                <div class="action-icon-box"
-                                    onclick="document.getElementById('complaint-modal').classList.remove('hidden')">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-headset"></i>
-                                    </div>
-                                    <span>الدعم الفني</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="branch-msg-list" class="hidden card"
-                            style="margin-top:10px; max-height:200px; overflow-y:auto"></div>
+                    <div class="field">
+                        <select id="oilLife">
+                            <option value="5000">5,000 كم</option>
+                            <option value="7000">7,000 كم</option>
+                            <option value="10000">10,000 كم</option>
+                        </select>
+                        <i class="fas fa-clock"></i>
                     </div>
-                </div>
-
-                <!-- Hidden Result for QR -->
-                <div id="qr-result" class="card hidden" style="text-align:center">
-                    <h3>تم التسجيل بنجاح</h3>
-                    <div id="qrcode" style="display:flex; justify-content:center; margin:15px"></div>
-                    <div id="qr-liters-info" class="qr-info-box"></div>
-                    <button class="btn-print" onclick="window.print()">طباعة الباركود</button>
+                    <div class="field"><input type="text" id="newOilBrand" placeholder="نوع الزيت المستخدم"><i
+                            class="fas fa-flask"></i></div>
+                    <div class="field"><input type="text" id="updateInvoiceNo" placeholder="رقم الفاتورة (اختياري)"><i
+                            class="fas fa-file-invoice"></i></div>
+                    <label class="filter-check-row">
+                        <input type="checkbox" id="updateFilterToggle" style="width:20px; height:20px"> تم تغيير
+                        الفلتر؟
+                    </label>
+                    <button class="btn-success" onclick="updateOilChange()">تأكيد العملية وإرسال واتساب</button>
                 </div>
             </div>
-            <div style="height:80px"></div>
-        </section>
+        </div>
+        <div style="height:80px"></div>
+    </section>
 
-        <!-- 6. Scan Section (Employee) -->
-        <section id="scan-section" class="view hidden">
-            <header>
-                <h2>فحص وصيانة</h2>
-            </header>
-            <div style="padding: 20px;">
-                <button class="btn-scan" onclick="toggleScanner()">
-                    <i class="fas fa-camera"></i> فتح الكاميرا
-                </button>
-                <div id="reader"></div>
+    <!-- 7. Admin Section (Stats & Messaging) -->
+    <section id="admin-section" class="view hidden">
+        <header>
+            <h2><i class="fas fa-chart-line"></i> لوحة الإدارة</h2>
+            <select id="branchFilter" onchange="updateStats(this.value)"
+                style="margin: 10px; padding: 5px; border-radius: 5px;">
+                <option value="all">جميع الفروع</option>
+            </select>
+        </header>
+        <div style="padding: 20px;">
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <i class="fas fa-car dash-icon"></i>
+                    <div class="dash-info">
+                        <h2 id="stat-total-cars">0</h2>
+                        <span>سيارة مسجلة</span>
+                    </div>
+                </div>
+                <div class="dash-card">
+                    <i class="fas fa-oil-can dash-icon-oil"></i>
+                    <div class="dash-info">
+                        <h2 id="stat-total-services">0</h2>
+                        <span>خدمة مكتملة</span>
+                    </div>
+                </div>
+            </div>
 
+            <!-- New Admin Nav Grid -->
+            <div class="admin-nav-grid">
+                <div class="admin-nav-item active" id="btn-data-tab" onclick="showAdminTab('data-tab')">
+                    <i class="fas fa-table"></i>
+                    <span>السجلات</span>
+                </div>
+                <div class="admin-nav-item" id="btn-stats-tab" onclick="showAdminTab('stats-tab')">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>الإحصائيات</span>
+                </div>
+                <div class="admin-nav-item" id="btn-msg-tab" onclick="showAdminTab('msg-tab')">
+                    <i class="fas fa-envelope"></i>
+                    <span>الرسائل</span>
+                </div>
+                <div class="admin-nav-item" id="btn-branches-tab" onclick="showAdminTab('branches-tab')">
+                    <i class="fas fa-code-branch"></i>
+                    <span>الفروع</span>
+                </div>
+                <div class="admin-nav-item" id="btn-complaint-tab" onclick="showAdminTab('complaint-tab')">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>الشكاوي</span>
+                </div>
+                <div class="admin-nav-item" id="btn-invoices-tab" onclick="showAdminTab('invoices-tab')">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>الفواتير</span>
+                </div>
+                <div class="admin-nav-item" onclick="logout()" style="border-color: #ff4d4d; color: #ff4d4d;">
+                    <i class="fas fa-sign-out-alt" style="color: #ff4d4d;"></i>
+                    <span style="color: #ff4d4d;">خروج</span>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="stats-tab" class="admin-tab hidden">
                 <div class="card">
-                    <h4 style="margin-top:0">بحث يدوي</h4>
-                    <div class="mini-plate-modern" style="direction: ltr;">
-                        <input type="tel" id="searchN" placeholder="1234" maxlength="4" class="plate-input-n"
-                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                        <div class="plate-divider"></div>
-                        <input type="text" id="searchL" placeholder="ABC" maxlength="3" class="plate-input-l"
-                            oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()">
-                    </div>
-                    <button class="btn-dark" onclick="searchCar()">بحث</button>
-                </div>
-
-                <!-- Car Details (Hidden by default) -->
-                <div id="car-details" class="hidden">
-                    <div class="card" style="text-align:center">
-                        <div id="plate-view-small"></div>
-                        <div id="static-info" style="margin-top:10px"></div>
-                    </div>
-
-                    <!-- Calculator -->
-                    <div class="card">
-                        <h4 style="margin:0 0 10px 0">حاسبة الممشي</h4>
-                        <div style="display:flex; gap:5px; align-items:center">
-                            <input type="number" id="calcPrev" readonly
-                                style="width:70px; background:#eee; border:none; padding:5px; text-align:center">
-                            <span>إلى</span>
-                            <input type="number" id="calcCurrent" oninput="calculateDiff()"
-                                style="width:70px; border:1px solid #ccc; padding:5px; text-align:center"
-                                placeholder="حالياً">
-                            <span>=</span>
-                            <strong id="calcResult" style="color:var(--primary)">0 كم</strong>
-                        </div>
-                    </div>
-
-                    <!-- Update Service Form -->
-                    <div class="card">
-                        <div class="card-header">تسجيل خدمة جديدة</div>
-                        <div class="field"><input type="number" id="newMileage" placeholder="العداد الجديد"><i
-                                class="fas fa-tachometer-alt"></i></div>
-                        <div class="field">
-                            <select id="oilLife">
-                                <option value="5000">5,000 كم</option>
-                                <option value="7000">7,000 كم</option>
-                                <option value="10000">10,000 كم</option>
-                            </select>
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="field"><input type="text" id="newOilBrand" placeholder="نوع الزيت المستخدم"><i
-                                class="fas fa-flask"></i></div>
-                        <div class="field"><input type="text" id="updateInvoiceNo"
-                                placeholder="رقم الفاتورة (اختياري)"><i class="fas fa-file-invoice"></i></div>
-                        <label class="filter-check-row">
-                            <input type="checkbox" id="updateFilterToggle" style="width:20px; height:20px"> تم تغيير
-                            الفلتر؟
-                        </label>
-                        <button class="btn-success" onclick="updateOilChange()">تأكيد العملية وإرسال واتساب</button>
-                    </div>
-                </div>
-            </div>
-            <div style="height:80px"></div>
-        </section>
-
-        <!-- 7. Admin Section (Stats & Messaging) -->
-        <section id="admin-section" class="view hidden">
-            <header>
-                <h2><i class="fas fa-chart-line"></i> لوحة الإدارة</h2>
-                <select id="branchFilter" onchange="updateStats(this.value)"
-                    style="margin: 10px; padding: 5px; border-radius: 5px;">
-                    <option value="all">جميع الفروع</option>
-                </select>
-            </header>
-            <div style="padding: 20px;">
-                <div class="dashboard-grid">
-                    <div class="dash-card">
-                        <i class="fas fa-car dash-icon"></i>
-                        <div class="dash-info">
-                            <h2 id="stat-total-cars">0</h2>
-                            <span>سيارة مسجلة</span>
-                        </div>
-                    </div>
-                    <div class="dash-card">
-                        <i class="fas fa-oil-can dash-icon-oil"></i>
-                        <div class="dash-info">
-                            <h2 id="stat-total-services">0</h2>
-                            <span>خدمة مكتملة</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- New Admin Nav Grid -->
-                <div class="admin-nav-grid">
-                    <div class="admin-nav-item active" id="btn-data-tab" onclick="showAdminTab('data-tab')">
-                        <i class="fas fa-table"></i>
-                        <span>السجلات</span>
-                    </div>
-                    <div class="admin-nav-item" id="btn-stats-tab" onclick="showAdminTab('stats-tab')">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>الإحصائيات</span>
-                    </div>
-                    <div class="admin-nav-item" id="btn-msg-tab" onclick="showAdminTab('msg-tab')">
-                        <i class="fas fa-envelope"></i>
-                        <span>الرسائل</span>
-                    </div>
-                    <div class="admin-nav-item" id="btn-branches-tab" onclick="showAdminTab('branches-tab')">
-                        <i class="fas fa-code-branch"></i>
-                        <span>الفروع</span>
-                    </div>
-                    <div class="admin-nav-item" id="btn-complaint-tab" onclick="showAdminTab('complaint-tab')">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <span>الشكاوي</span>
-                    </div>
-                    <div class="admin-nav-item" id="btn-invoices-tab" onclick="showAdminTab('invoices-tab')">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <span>الفواتير</span>
-                    </div>
-                    <div class="admin-nav-item" onclick="logout()" style="border-color: #ff4d4d; color: #ff4d4d;">
-                        <i class="fas fa-sign-out-alt" style="color: #ff4d4d;"></i>
-                        <span style="color: #ff4d4d;">خروج</span>
-                    </div>
-                </div>
-
-                <!-- Stats Tab -->
-                <div id="stats-tab" class="admin-tab hidden">
-                    <div class="card">
-                        <h3>فلتر الإحصائيات</h3>
-                        <div style="display:flex; gap:10px; margin-bottom:15px">
-                            <select id="statsPeriod" onchange="updateStats()" class="modern-select">
-                                <option value="daily">يومي</option>
-                                <option value="weekly">أسبوعي</option>
-                                <option value="monthly">شهري</option>
-                                <option value="yearly">سنوي</option>
-                                <option value="all">منذ البداية</option>
-                            </select>
-                            <select id="statsBranch" onchange="updateStats()" class="modern-select">
-                                <option value="all">كل الفروع</option>
-                            </select>
-                        </div>
-                        <div class="dashboard-grid">
-                            <div class="dash-card">
-                                <i class="fas fa-car dash-icon"></i>
-                                <div class="dash-info">
-                                    <h2 id="stat-filtered-cars">0</h2>
-                                    <span>سيارة (مفلتر)</span>
-                                </div>
-                            </div>
-                            <div class="dash-card">
-                                <i class="fas fa-oil-can dash-icon-oil"></i>
-                                <div class="dash-info">
-                                    <h2 id="stat-filtered-services">0</h2>
-                                    <span>خدمة (مفلتر)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Data Tab -->
-                <div id="data-tab" class="admin-tab">
-                    <div style="display:flex; gap:10px; margin-bottom:10px">
-                        <select id="dataBranchFilter" onchange="filterOperationsTable()" class="modern-select">
+                    <h3>فلتر الإحصائيات</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:15px">
+                        <select id="statsPeriod" onchange="updateStats()" class="modern-select">
+                            <option value="daily">يومي</option>
+                            <option value="weekly">أسبوعي</option>
+                            <option value="monthly">شهري</option>
+                            <option value="yearly">سنوي</option>
+                            <option value="all">منذ البداية</option>
+                        </select>
+                        <select id="statsBranch" onchange="updateStats()" class="modern-select">
                             <option value="all">كل الفروع</option>
                         </select>
-                        <input type="text" id="opSearchFilter" onkeyup="filterOperationsTable()"
-                            placeholder="بحث برقم اللوحة..." class="modern-input">
                     </div>
-                    <div class="card" style="overflow-x:auto;">
-                        <table style="width:100%; font-size:12px; text-align:right">
-                            <thead>
-                                <tr>
-                                    <th>اللوحة</th>
-                                    <th>التاريخ</th>
-                                    <th>الفرع</th>
-                                    <th>إجراء</th>
-                                </tr>
-                            </thead>
-                            <tbody id="data-table-body"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn-secondary" onclick="exportData()" style="width:100%; margin-top:10px">تصدير
-                        Excel</button>
-                </div>
-
-                <!-- Messages Tab -->
-                <div id="msg-tab" class="admin-tab hidden">
-                    <div class="card">
-                        <h3>إرسال رسالة للفرع</h3>
-                        <select id="msgRecipient"
-                            style="width:100%; padding:10px; margin-bottom:10px; background:var(--dark); color:white">
-                            <option value="all">كل الفروع (تعميم)</option>
-                        </select>
-                        <textarea id="msgContent" rows="3" placeholder="نص الرسالة..."
-                            style="width:100%; margin-bottom:10px; background:var(--dark); color:white"></textarea>
-                        <button class="btn-main" onclick="sendAdminMessage()">إرسال</button>
-                    </div>
-                    <div id="admin-inbox-list"></div>
-                </div>
-
-                <!-- Branches Tab -->
-                <div id="branches-tab" class="admin-tab hidden">
-                    <div class="card">
-                        <div class="card-header">إدارة الفروع</div>
-                        <div class="add-branch-box">
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
-                                <input id="newBrName" placeholder="اسم الفرع" class="modern-input">
-                                <input id="newBrUser" placeholder="اسم المستخدم" class="modern-input">
-                                <input id="newBrPass" placeholder="كلمة المرور" class="modern-input">
-                                <button onclick="createNewBranch()" class="btn-main"><i class="fas fa-plus"></i> إضافة
-                                    فرع</button>
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <i class="fas fa-car dash-icon"></i>
+                            <div class="dash-info">
+                                <h2 id="stat-filtered-cars">0</h2>
+                                <span>سيارة (مفلتر)</span>
                             </div>
                         </div>
-                        <div id="branches-list-admin" style="margin-top:20px"></div>
+                        <div class="dash-card">
+                            <i class="fas fa-oil-can dash-icon-oil"></i>
+                            <div class="dash-info">
+                                <h2 id="stat-filtered-services">0</h2>
+                                <span>خدمة (مفلتر)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Complaints Tab -->
-                <div id="complaint-tab" class="admin-tab hidden">
-                    <div class="card">
-                        <h3>صندوق الشكاوي والمقترحات</h3>
-                        <div id="complaints-list">جاري التحميل...</div>
-                    </div>
-                </div>
-
-                <!-- Invoices Tab -->
-                <div id="invoices-tab" class="admin-tab hidden">
-                    <div class="card">
-                        <h3>أرشيف الفواتير</h3>
-                        <input type="text" id="invoiceSearch" onkeyup="filterInvoices()"
-                            placeholder="بحث برقم الفاتورة..."
-                            style="width:100%; padding:10px; border:1px solid #333; border-radius:10px; margin-bottom:10px; background:var(--dark); color:white">
-                        <div id="invoices-list-container" style="overflow-x:auto;"></div>
-                    </div>
-                </div>
-
             </div>
-            <div style="height:80px"></div>
-        </section>
 
-        <!-- 8. Developer Login View (Hidden) -->
-        <section id="developer-login-view" class="view hidden">
-            <div style="padding:50px 20px; text-align:center">
-                <h2>دخول المطورين</h2>
-                <div class="field"><input type="text" id="devUser" placeholder="User"></div>
-                <div class="field"><input type="password" id="devPass" placeholder="Pass"></div>
-                <button class="btn-dark" onclick="loginDeveloper()">Login</button>
-                <button class="btn-secondary" onclick="switchView('landing-section')">Cancel</button>
+            <!-- Data Tab -->
+            <div id="data-tab" class="admin-tab">
+                <div style="display:flex; gap:10px; margin-bottom:10px">
+                    <select id="dataBranchFilter" onchange="filterOperationsTable()" class="modern-select">
+                        <option value="all">كل الفروع</option>
+                    </select>
+                    <input type="text" id="opSearchFilter" onkeyup="filterOperationsTable()"
+                        placeholder="بحث برقم اللوحة..." class="modern-input">
+                </div>
+                <div class="card" style="overflow-x:auto;">
+                    <table style="width:100%; font-size:12px; text-align:right">
+                        <thead>
+                            <tr>
+                                <th>اللوحة</th>
+                                <th>التاريخ</th>
+                                <th>الفرع</th>
+                                <th>إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body"></tbody>
+                    </table>
+                </div>
+                <button class="btn-secondary" onclick="exportData()" style="width:100%; margin-top:10px">تصدير
+                    Excel</button>
             </div>
-        </section>
 
-        <!-- 9. Developer Dashboard -->
-        <section id="developer-dashboard" class="view hidden">
-            <header style="background:#000">
-                <h2>Developer Console</h2>
-            </header>
-            <div style="padding: 20px;">
-
-                <!-- Create Admin Section -->
+            <!-- Messages Tab -->
+            <div id="msg-tab" class="admin-tab hidden">
                 <div class="card">
-                    <h3>إضافة مسؤول جديد (Admin)</h3>
-                    <div class="field"><input type="text" id="newAdminUser" placeholder="اسم الدخول (Username)"></div>
-                    <div class="field"><input type="text" id="newAdminName" placeholder="الاسم الكامل"></div>
-                    <div class="field"><input type="text" id="newAdminPass" placeholder="كلمة المرور"></div>
-                    <button class="btn-main" onclick="createNewAdmin()">إنشاء حساب مسؤول</button>
+                    <h3>إرسال رسالة للفرع</h3>
+                    <select id="msgRecipient"
+                        style="width:100%; padding:10px; margin-bottom:10px; background:var(--dark); color:white">
+                        <option value="all">كل الفروع (تعميم)</option>
+                    </select>
+                    <textarea id="msgContent" rows="3" placeholder="نص الرسالة..."
+                        style="width:100%; margin-bottom:10px; background:var(--dark); color:white"></textarea>
+                    <button class="btn-main" onclick="sendAdminMessage()">إرسال</button>
                 </div>
-
-                <div class="card" style="border-right: 4px solid red;">
-                    <h3>حالة النظام (Kill Switch)</h3>
-                    <p>إيقاف النظام سيمنع جميع الموظفين والعملاء من الدخول.</p>
-                    <button id="kill-switch-btn" onclick="toggleKillSwitch()"
-                        style="background:red; color:white; padding:10px; border:none; border-radius:5px; width:100%">تفعيل
-                        الإيقاف الطارئ</button>
-                </div>
-                <button class="btn-secondary" onclick="switchView('landing-section')">تسجيل خروج</button>
+                <div id="admin-inbox-list"></div>
             </div>
-        </section>
+
+            <!-- Branches Tab -->
+            <div id="branches-tab" class="admin-tab hidden">
+                <div class="card">
+                    <div class="card-header">إدارة الفروع</div>
+                    <div class="add-branch-box">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
+                            <input id="newBrName" placeholder="اسم الفرع" class="modern-input">
+                            <input id="newBrUser" placeholder="اسم المستخدم" class="modern-input">
+                            <input id="newBrPass" placeholder="كلمة المرور" class="modern-input">
+                            <button onclick="createNewBranch()" class="btn-main"><i class="fas fa-plus"></i> إضافة
+                                فرع</button>
+                        </div>
+                    </div>
+                    <div id="branches-list-admin" style="margin-top:20px"></div>
+                </div>
+            </div>
+
+            <!-- Complaints Tab -->
+            <div id="complaint-tab" class="admin-tab hidden">
+                <div class="card">
+                    <h3>صندوق الشكاوي والمقترحات</h3>
+                    <div id="complaints-list">جاري التحميل...</div>
+                </div>
+            </div>
+
+            <!-- Invoices Tab -->
+            <div id="invoices-tab" class="admin-tab hidden">
+                <div class="card">
+                    <h3>أرشيف الفواتير</h3>
+                    <input type="text" id="invoiceSearch" onkeyup="filterInvoices()" placeholder="بحث برقم الفاتورة..."
+                        style="width:100%; padding:10px; border:1px solid #333; border-radius:10px; margin-bottom:10px; background:var(--dark); color:white">
+                    <div id="invoices-list-container" style="overflow-x:auto;"></div>
+                </div>
+            </div>
+
+        </div>
+        <div style="height:80px"></div>
+    </section>
+
+    <!-- 8. Developer Login View (Hidden) -->
+    <section id="developer-login-view" class="view hidden">
+        <div style="padding:50px 20px; text-align:center">
+            <h2>دخول المطورين</h2>
+            <div class="field"><input type="text" id="devUser" placeholder="User"></div>
+            <div class="field"><input type="password" id="devPass" placeholder="Pass"></div>
+            <button class="btn-dark" onclick="loginDeveloper()">Login</button>
+            <button class="btn-secondary" onclick="switchView('landing-section')">Cancel</button>
+        </div>
+    </section>
+
+    <!-- 9. Developer Dashboard -->
+    <section id="developer-dashboard" class="view hidden">
+        <header style="background:#000">
+            <h2>Developer Console</h2>
+        </header>
+        <div style="padding: 20px;">
+
+            <!-- Create Admin Section -->
+            <div class="card">
+                <h3>إضافة مسؤول جديد (Admin)</h3>
+                <div class="field"><input type="text" id="newAdminUser" placeholder="اسم الدخول (Username)"></div>
+                <div class="field"><input type="text" id="newAdminName" placeholder="الاسم الكامل"></div>
+                <div class="field"><input type="text" id="newAdminPass" placeholder="كلمة المرور"></div>
+                <button class="btn-main" onclick="createNewAdmin()">إنشاء حساب مسؤول</button>
+            </div>
+
+            <div class="card" style="border-right: 4px solid red;">
+                <h3>حالة النظام (Kill Switch)</h3>
+                <p>إيقاف النظام سيمنع جميع الموظفين والعملاء من الدخول.</p>
+                <button id="kill-switch-btn" onclick="toggleKillSwitch()"
+                    style="background:red; color:white; padding:10px; border:none; border-radius:5px; width:100%">تفعيل
+                    الإيقاف الطارئ</button>
+            </div>
+            <button class="btn-secondary" onclick="switchView('landing-section')">تسجيل خروج</button>
+        </div>
+    </section>
 
     </div>
 
