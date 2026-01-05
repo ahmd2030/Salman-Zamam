@@ -151,6 +151,9 @@ window.onload = () => {
             }
         });
     }
+
+    // Check for Client Session
+    checkClientSession();
 };
 
 // --- Auth & Modals ---
@@ -281,6 +284,9 @@ window.switchView = switchView;
 window.logout = function () {
     localStorage.removeItem('branch_session');
     localStorage.removeItem('admin_session');
+    // Clear Client Session
+    localStorage.removeItem('clientUser');
+    localStorage.removeItem('clientPass');
     location.reload();
 }
 
@@ -820,43 +826,21 @@ async function loadClientDashboard(car, id) {
         </div>
     `;
 
-    // ... Notifications & History ...
-    // ...
-}
-
-window.calculateRemaining = function () {
-    const current = parseInt(document.getElementById('calc-current-mil').value);
-    const targetText = document.getElementById('next-mil-target').innerText;
-    const target = parseInt(targetText.replace(/[^0-9]/g, '')); // Extract number
-
-    if (!current) { alert("أدخل العداد الحالي"); return; }
-
-    const diff = target - current;
-    const resEl = document.getElementById('calc-result');
-    resEl.style.display = 'block';
-
-    if (diff > 0) {
-        resEl.innerHTML = `<span style="color:#4ade80">متبقي لك: ${diff} كم</span>`;
-    } else {
-        resEl.innerHTML = `<span style="color:#f87171">تجاوزت الموعد بـ ${Math.abs(diff)} كم! يرجى تغيير الزيت فوراً.</span>`;
-    }
-}
-
-// 3. Render Notifications Badge
-const bellArea = document.getElementById('client-notif-area');
-if (bellArea) {
-    bellArea.innerHTML = `
+    // 3. Render Notifications Badge
+    const bellArea = document.getElementById('client-notif-area');
+    if (bellArea) {
+        bellArea.innerHTML = `
             <div class="icon-wrapper" onclick="alert('${notifMsg || "لا توجد إشعارات جديدة"}')">
                 <i class="fas fa-bell ${notifCount > 0 ? 'fa-shake' : ''}"></i>
                 <span class="badge-count ${notifCount === 0 ? 'hidden' : ''}">${notifCount}</span>
             </div>
         `;
-}
+    }
 
-// 4. Render History Timeline
-const historyList = document.getElementById('client-history-list');
-if (historyList) {
-    historyList.innerHTML = history.slice().reverse().map((h) => `
+    // 4. Render History Timeline
+    const historyList = document.getElementById('client-history-list');
+    if (historyList) {
+        historyList.innerHTML = history.slice().reverse().map((h) => `
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
                 <div class="timeline-content">
@@ -872,7 +856,19 @@ if (historyList) {
                 </div>
             </div>
         `).join('');
+    }
 }
+
+window.calculateRemaining = function () {
+    const current = parseInt(document.getElementById('calc-current-mil').value);
+    const targetText = document.getElementById('next-mil-target').innerText;
+    const target = parseInt(targetText.replace(/[^0-9]/g, ''));
+    if (!current) { alert("أدخل العداد الحالي"); return; }
+    const diff = target - current;
+    const resEl = document.getElementById('calc-result');
+    resEl.style.display = 'block';
+    if (diff > 0) { resEl.innerHTML = `<span style="color:#4ade80">متبقي لك: ${diff} كم</span>`; }
+    else { resEl.innerHTML = `<span style="color:#f87171">تجاوزت الموعد بـ ${Math.abs(diff)} كم! يرجى تغيير الزيت فوراً.</span>`; }
 }
 
 async function loginCustomer() {
