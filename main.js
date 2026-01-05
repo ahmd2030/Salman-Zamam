@@ -340,12 +340,20 @@ async function saveNewCar() {
 
         if (!l || !n || !name || phone.length < 10) { alert("يرجى إكمال البيانات"); return; }
 
-        const id = l + " " + n;
+        // 1. Construct ID with DASH (User Request: AAA-1111)
+        const id = l + "-" + n;
 
-        // التحقق من الوجود
+        // التحقق من الوجود (Try New ID)
         const docRef = doc(dbStore, "cars", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) { alert("المركبة مسجلة مسبقاً!"); return; }
+        let docSnap = await getDoc(docRef);
+
+        // Check Legacy Space ID to prevent duplicates if migrated
+        if (!docSnap.exists()) {
+            const legacySnap = await getDoc(doc(dbStore, "cars", l + " " + n));
+            if (legacySnap.exists()) { alert("هذه المركبة مسجلة بالنظام القديم (بدون شرطة)."); return; }
+        } else {
+            alert("المركبة مسجلة مسبقاً!"); return;
+        }
 
         // Point 10: Tag car with Branch ID
         const branchId = (window.currentUser && window.currentUser.type === 'branch') ? window.currentUser.id : 'HEAD_OFFICE';
@@ -354,6 +362,7 @@ async function saveNewCar() {
             l, n, name, carType: type, phone,
             branchId: branchId, // Save for filtering
             registeredBy: window.currentUser ? window.currentUser.id : 'system',
+            // ... rest unchanged
             history: [{
                 date: new Date().toLocaleDateString('ar-SA'),
                 mileage: parseInt(document.getElementById('mileage').value) || 0,
@@ -371,7 +380,7 @@ async function saveNewCar() {
 
         // Reset form or notify
         // resetForm('new-car-section'); // Optional
-        alert("تم التسجيل سحابياً");
+        alert("تم التسجيل بنجاح (رقم اللوحة: " + id + ")");
     } catch (e) {
         console.error(e);
         alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
@@ -385,13 +394,23 @@ async function searchCar() {
     try {
         const l = document.getElementById('searchL').value.toUpperCase();
         const n = document.getElementById('searchN').value;
-        const id = l + " " + n;
+        const inputId = l + "-" + n; // Prefer Dash
 
-        const docRef = doc(dbStore, "cars", id);
-        const docSnap = await getDoc(docRef);
+        let docRef = doc(dbStore, "cars", inputId);
+        let docSnap = await getDoc(docRef);
+
+        // Fallback to Space if not found
+        if (!docSnap.exists()) {
+            // Try legacy
+            docRef = doc(dbStore, "cars", l + " " + n);
+            docSnap = await getDoc(docRef);
+        }
 
         if (docSnap.exists()) {
             const car = docSnap.data();
+            const realId = docSnap.id; // Correct ID (either Dash or Space)
+            window.currentLoadedCarId = realId; // Store for update operations
+
             document.getElementById('car-details').classList.remove('hidden');
 
             const liters = car.history[0]?.liters || '-';
@@ -400,7 +419,7 @@ async function searchCar() {
             document.getElementById('plate-view-small').innerHTML = `
                 <div class="mini-plate-modern" style="background:var(--dark); color:white"><span>${car.l}</span><div class="plate-divider"></div><span>${car.n}</span></div>
                 <p style="text-align:center; font-weight:bold;">${car.name} - ${car.carType}</p>
-                <button onclick="reprintQR('${id}', '${liters}', '${litersF}')" class="btn-secondary" style="width: auto; margin: 0 auto 10px; display: block; font-size: 12px; padding: 5px 15px;">
+                <button onclick="reprintQR('${realId}', '${liters}', '${litersF}')" class="btn-secondary" style="width: auto; margin: 0 auto 10px; display: block; font-size: 12px; padding: 5px 15px;">
                     <i class="fas fa-qrcode"></i> عرض/طباعة الباركود
                 </button>
             `;
@@ -512,7 +531,10 @@ function fallbackCopyText(text) {
 async function updateOilChange() {
     showLoader(true);
     try {
-        const id = document.getElementById('searchL').value.toUpperCase() + " " + document.getElementById('searchN').value;
+        // Use the ID found during search (Safe for both Old " " and New "-")
+        const id = window.currentLoadedCarId;
+        if (!id) { alert("يرجى البحث عن السيارة أولاً"); return; }
+
         const docRef = doc(dbStore, "cars", id);
         const docSnap = await getDoc(docRef);
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salman-app-v3.9-niimbot-btn'; // Bumped for Niimbot Button
+const CACHE_NAME = 'salman-app-v3.10-dash-id'; // Bumped for Dash ID Format
 const ASSETS = [
     './',
     './index.html',

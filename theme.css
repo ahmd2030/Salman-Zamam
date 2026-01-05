@@ -532,22 +532,64 @@ button:active {
     display: none !important;
 }
 
-/* Plate Modern Dark */
+/* Real KSA Plate Design (Refined based on User Image) */
 .mini-plate-modern {
-    background: #e2e8f0;
-    color: black;
-    border: 3px solid black;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    background: #fff;
+    border: 3px solid #1e293b;
+    /* Dark Navy/Black Border */
+    border-radius: 12px;
+    /* Matching the image roundness */
+    box-shadow: none;
+    /* Flat look as per image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    height: 60px;
+    width: 200px;
+    /* Fixed width closest to image ratio */
+    margin: 0 auto 15px;
+    direction: ltr;
+    /* Ensure Left-to-Right for 1234 | ABC */
+    overflow: hidden;
 }
 
 .mini-plate-modern input {
-    color: black;
-    font-family: monospace;
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    text-align: center;
+    background: transparent;
+    border: none;
+    height: 100%;
+    outline: none;
+    color: #4b5563;
+    /* Dark Gray text like image */
+}
+
+.plate-input-n {
+    width: 50%;
+    letter-spacing: 1px;
+}
+
+.plate-input-l {
+    width: 50%;
+    letter-spacing: 2px;
 }
 
 .plate-divider {
-    background: black;
+    background: #c0a060;
+    /* Gold/Brown divider color from user image/branding */
+    width: 2px;
+    height: 60%;
+    /* Not full height, floating in middle */
+    margin: 0 5px;
+}
+
+/* Cleanup old badge styles */
+.ksa-badge,
+.arabic-ksa {
+    display: none;
 }
 
 /* Dynamic Quote */
