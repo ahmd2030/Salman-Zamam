@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salman-app-v3.10-dash-id'; // Bumped for Dash ID Format
+const CACHE_NAME = 'salman-app-v3.11-share-api'; // Bumped for Share API
 const ASSETS = [
     './',
     './index.html',

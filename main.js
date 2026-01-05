@@ -455,10 +455,22 @@ window.reprintQR = function (id, l, lf) {
                 <p style="margin:5px 0"><strong>بدون فلتر:</strong> ${l} لتر</p>
                 <p style="margin:5px 0"><strong>مع فلتر:</strong> ${lf} لتر</p>
             </div>
-            <button onclick="window.print()" class="btn-print mt-20" style="margin-top:15px">طباعة</button>
-            <button onclick="copyAndOpenNiimbot('${id}')" class="btn-main" style="margin-top:10px; display: flex; align-items: center; justify-content: center; gap: 5px; background: #c0a060; color: black;">
-                <i class="fas fa-print"></i> نسخ وفتح Niimbot
-            </button>
+            
+            <!-- Action Buttons Row -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                <button onclick="shareQR('${id}')" class="btn-main" style="flex: 1; background: #25D366; color: white; min-width: 100px;">
+                    <i class="fas fa-share-alt"></i> مشاركة
+                </button>
+                <button onclick="copyQR('${id}')" class="btn-secondary" style="flex: 1; min-width: 80px;">
+                    <i class="fas fa-copy"></i> نسخ
+                </button>
+                <button onclick="window.print()" class="btn-print" style="flex: 1; min-width: 80px;">
+                    <i class="fas fa-print"></i> طباعة
+                </button>
+            </div>
+            
+            <!-- Fallback text for clarity -->
+            <p style="font-size:10px; color:#aaa; margin-top:5px">زر المشاركة يسمح بالإرسال للواتساب أو تطبيق الطابعة</p>
         </div>
     `;
 
@@ -469,23 +481,29 @@ window.reprintQR = function (id, l, lf) {
     }, 100);
 }
 
-window.copyAndOpenNiimbot = function (text) {
-    // 1. Copy
-    window.copyQR(text);
-
-    // 2. Open App (Android Intent)
-    // Try generic launch first, if fails, it stays. 
-    // Package name for Niimbot: com.niimbot.printing
-
-    setTimeout(() => {
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        if (isAndroid) {
-            window.location.href = "intent://#Intent;package=com.niimbot.printing;end";
-        } else {
-            // iOS or PC: Just allow them to switch manually
-            // alert("يرجى فتح تطبيق Niimbot الآن");
+// Native Share API functionality
+window.shareQR = async function (text) {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'رقم اللوحة',
+                text: text,
+            });
+            console.log('Shared successfully');
+        } catch (err) {
+            console.log('Error sharing:', err);
         }
-    }, 1000);
+    } else {
+        // Fallback
+        copyQR(text);
+        alert("المشاركة غير مدعومة مباشرة، تم نسخ النص للحافظة.");
+    }
+}
+
+// Reuse existing copyQR Logic (with Fallback)
+window.copyAndOpenNiimbot = function (text) {
+    // Deprecated in favor of generic Share, but kept if needed
+    window.shareQR(text);
 }
 
 window.copyQR = function (text) {
