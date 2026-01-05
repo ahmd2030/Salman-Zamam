@@ -782,14 +782,21 @@ button:active {
 /* --- Print Styles (Thermal Label Optimized) --- */
 @media print {
     @page {
-        size: auto;
+        size: 55mm 30mm;
         margin: 0mm;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
     }
 
     body * {
         visibility: hidden;
     }
 
+    /* Force show the modal and its content */
     #temp-qr-modal,
     #temp-qr-modal * {
         visibility: visible;
@@ -799,14 +806,16 @@ button:active {
         position: fixed;
         left: 0;
         top: 0;
-        width: 100%;
-        height: 100%;
+        width: 55mm;
+        height: 30mm;
         background: white !important;
         display: flex !important;
-        align-items: flex-start;
-        justify-content: center;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         z-index: 999999;
-        padding-top: 2px;
+        padding: 2px;
+        box-sizing: border-box;
     }
 
     #temp-qr-modal .card {
@@ -814,40 +823,97 @@ button:active {
         box-shadow: none !important;
         background: white !important;
         color: black !important;
-        width: 48mm !important;
-        max-width: 48mm !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
         padding: 0 !important;
-        margin: 0 auto !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
     }
 
+    /* Hide Close Button and Logo to save space */
+    #temp-qr-modal span[onclick],
     #temp-qr-modal img {
-        width: 40px !important;
-        margin-top: 0 !important;
-        margin-bottom: 2px !important;
+        display: none !important;
     }
+
+    /* Left Side: QR Code */
+    #temp-qrcode {
+        width: 24mm !important;
+        height: 24mm !important;
+        margin: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #temp-qrcode img,
+    #temp-qrcode canvas {
+        display: block !important;
+        /* Ensure QR image/canvas is visible */
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Right Side: Info */
+    #temp-qr-modal .card>div:not(#temp-qrcode) {
+        /* This targets the container with title and info-box if structure allows, 
+           but looking at main.js structure: 
+           <h3>ID</h3>, <div id="temp-qrcode"></div>, <div class="qr-info-box">...</div> 
+           We need to flex them properly.
+           The structure in main.js is vertical stack. We need to override order or make container flex row.
+        */
+        display: block;
+    }
+
+    /* Let's use Grid or Fixed positioning since structure is flat in .card */
+
+    /* Re-target logic based on main.js structure:
+       .card children: span(close), img(logo), h3(id), div(qr), div(info), button(print)
+    */
 
     #temp-qr-modal h3 {
-        font-size: 14px !important;
-        margin: 2px 0 !important;
+        position: absolute;
+        top: 2px;
+        right: 5px;
+        font-size: 10px !important;
+        margin: 0 !important;
         color: black !important;
+        white-space: nowrap;
     }
 
     #temp-qr-modal .qr-info-box {
-        font-size: 11px !important;
+        position: absolute;
+        bottom: 2px;
+        right: 5px;
+        font-size: 9px !important;
         font-weight: bold;
         line-height: 1.1;
         color: black !important;
-        margin-top: 5px;
+        text-align: right;
     }
 
     #temp-qr-modal .qr-info-box p {
-        margin: 2px 0;
+        margin: 1px 0;
+    }
+
+    /* Move QR to left */
+    #temp-qrcode {
+        position: absolute;
+        left: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 2px solid black;
+        /* Better visibility */
+        padding: 1px;
     }
 
     /* Hide buttons in print */
     .btn-print,
-    .btn-secondary,
-    span[onclick] {
+    .btn-secondary {
         display: none !important;
     }
 }

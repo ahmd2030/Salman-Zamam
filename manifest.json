@@ -1,6 +1,6 @@
 {
-    "name": "سلمان زمام الخالدي - صيانة مرسيدس",
-    "short_name": "SZK صيانة",
+    "name": "ZK",
+    "short_name": "ZK",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#0f172a",
@@ -10,7 +10,8 @@
         {
             "src": "logo.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ]
 }
